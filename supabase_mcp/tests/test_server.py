@@ -173,6 +173,41 @@ class TestReadTableRows:
         mock_query.limit.assert_called_once_with(2)
         mock_query.execute.assert_called_once()
 
+    def test_read_table_rows_with_descending_order(self):
+        """Test read_table_rows with descending order."""
+        # Create mock context
+        mock_context = MagicMock(spec=Context)
+        mock_supabase = MagicMock()
+        mock_context.request_context.lifespan_context.client = mock_supabase
+
+        # Mock the Supabase query builder
+        mock_query = MagicMock()
+        mock_supabase.table.return_value.select.return_value = mock_query
+        mock_query.order.return_value = mock_query
+        mock_query.execute.return_value.data = [
+            {"id": 2, "created_at": "2023-01-02"},
+            {"id": 1, "created_at": "2023-01-01"}
+        ]
+
+        # Call the function with descending order
+        result = read_table_rows(
+            ctx=mock_context,
+            table_name="users",
+            order_by="created_at",
+            ascending=False
+        )
+
+        # Verify the result
+        assert result == [
+            {"id": 2, "created_at": "2023-01-02"},
+            {"id": 1, "created_at": "2023-01-01"}
+        ]
+
+        # Verify the query was built correctly with descending order
+        mock_supabase.table.assert_called_once_with("users")
+        mock_query.order.assert_called_once_with("created_at", ascending=False)
+        mock_query.execute.assert_called_once()
+
 
 class TestCreateTableRecords:
     """Tests for the create_table_records MCP tool."""

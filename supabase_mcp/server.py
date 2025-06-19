@@ -118,8 +118,7 @@ def read_table_rows(
     
     # Apply ordering if provided
     if order_by:
-        order_method = "order" if ascending else "order"
-        query = getattr(query, order_method)(order_by, ascending=ascending)
+        query = query.order(order_by, ascending=ascending)
     
     # Apply limit if provided
     if limit:
